@@ -6,11 +6,8 @@ torchvision
 transformers
 accelerate
 facenet-pytorch
-opencv-python
+opencv-python-headless
 Pillow
 numpy
 pandas
-matplotlib
-scipy
-scikit-learn
 requests

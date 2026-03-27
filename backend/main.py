@@ -66,21 +66,32 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Server initializing on device: {device}")
 
-# 2. SAFE MODEL LOADING & ENGINE INITIALIZATION
-try:
-    model, processor = load_hf_model(device=device)
-    inference_engine = InferenceEngine(model=model, processor=processor, device=device)
-    print("🚀 AI Engine fully loaded and stabilized.")
-except Exception as e:
-    print(f"🛑 CRITICAL AI MODEL FAILURE: {str(e)}")
-    traceback.print_exc()
-    # Mock fallback to prevent server deadlocking
-    class MockInferenceEngine:
-        def predict_image(self, *args, **kwargs):
-            return {"label": "ERROR: MODEL OFFLINE", "confidence": 0, "error": str(e)}
-        def predict_video(self, *args, **kwargs):
-            return {"label": "ERROR: MODEL OFFLINE", "confidence": 0, "error": str(e)}
-    inference_engine = MockInferenceEngine()
+# 2. ASYNC MODEL LOADING (AVOID DEPLOYMENT TIMEOUTS)
+inference_engine = None
+
+@app.on_event("startup")
+async def startup_event():
+    import threading
+    def load_engine():
+        global inference_engine
+        try:
+            print("⏳ Background: Loading AI Engine...")
+            model, processor = load_hf_model(device=device)
+            inference_engine = InferenceEngine(model=model, processor=processor, device=device)
+            print("🚀 AI Engine fully loaded and stabilized.")
+        except Exception as e:
+            print(f"🛑 CRITICAL AI MODEL FAILURE: {str(e)}")
+            traceback.print_exc()
+            # Mock fallback
+            class MockInferenceEngine:
+                def predict_image(self, *args, **kwargs):
+                    return {"label": "ERROR: MODEL OFFLINE", "confidence": 0, "error": str(e)}
+                def predict_video(self, *args, **kwargs):
+                    return {"label": "ERROR: MODEL OFFLINE", "confidence": 0, "error": str(e)}
+            inference_engine = MockInferenceEngine()
+    
+    # Run in background thread to not block the main event loop
+    threading.Thread(target=load_engine).start()
 
 @app.get("/api/health")
 def health_check():
@@ -100,6 +111,9 @@ async def predict_image(file: UploadFile = File(...), threshold: float = 0.5):
         file_path = os.path.join(UPLOAD_DIR, f"img_{int(time.time())}_{file.filename}")
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
+        
+        if inference_engine is None:
+            return {"error": "AI Engine is still initializing. Please wait a moment."}
         
         results = inference_engine.predict_image(file_path, threshold=threshold)
         
@@ -123,6 +137,9 @@ async def predict_video(file: UploadFile = File(...), threshold: float = 0.5):
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         
+        if inference_engine is None:
+            return {"error": "AI Engine is still initializing. Please wait a moment."}
+            
         # Process video with 15-frame sampling
         results = inference_engine.predict_video(file_path, sample_rate=15, threshold=threshold)
         
@@ -167,6 +184,9 @@ async def test_ai_face(threshold: float = 0.5):
             img_bytes = io.BytesIO(response.content)
             img = Image.open(img_bytes).convert("RGB")
             
+            if inference_engine is None:
+                return {"error": "AI Engine still initializing..."}
+                
             # Predict WITHOUT fallback to ensure face-specific result
             results = inference_engine.predict_image(img, threshold=threshold, allow_fallback=False)
             
@@ -189,6 +209,9 @@ async def test_ai_face(threshold: float = 0.5):
     if os.path.exists(local_path):
         try:
             print(f"Using local target fallback: {local_path}")
+            if inference_engine is None:
+                return {"error": "AI Engine still initializing..."}
+                
             img = Image.open(local_path).convert("RGB")
             results = inference_engine.predict_image(img, threshold=threshold, allow_fallback=False)
             
@@ -227,4 +250,7 @@ async def proxy_video(url: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Get port from environment variable (Render/Vercel) or fallback to 8000
+    port = int(os.environ.get("PORT", 8000))
+    print(f"🚀 Starting AetherGuard Inference Engine on port {port}")
+    uvicorn.run(app, host="0.0.0.0", port=port)
