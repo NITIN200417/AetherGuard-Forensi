@@ -2,6 +2,8 @@ services:
   - type: web
     name: aetherguard-inference-engine-v5
     env: python
+    region: ohio
+    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: python backend/main.py
     envVars:
@@ -10,7 +12,3 @@ services:
       - key: TEMP_UPLOADS
         value: ./temp_uploads
     healthCheckPath: /api/health
-    disk:
-      name: model-cache
-      mountPath: /models
-      sizeGB: 1
