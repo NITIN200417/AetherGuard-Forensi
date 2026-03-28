@@ -31,7 +31,7 @@ const AuthPage = ({ onLogin, initialMode = 'login' }) => {
   }, [timer]);
 
   const handleSendOTP = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!formData.identifier) return;
     
     setIsLoading(true);
