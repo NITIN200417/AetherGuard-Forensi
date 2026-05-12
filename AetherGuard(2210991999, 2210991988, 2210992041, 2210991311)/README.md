@@ -7,13 +7,13 @@
 
 ## 🚀 Deepfake Detection Beyond Gravity
 
-**AetherGuard Forensic** is a production-grade AI forensic suite engineered for advanced deepfake detection and digital media verification. The platform combines state-of-the-art computer vision, transformer architectures, and biometric analysis pipelines to detect synthetic manipulations across images, video streams, and live optical feeds.
+AetherGuard Forensic is a production-grade AI forensic suite engineered for advanced deepfake detection and digital media verification. The platform combines state-of-the-art computer vision, transformer architectures, and biometric analysis pipelines to detect synthetic manipulations across images, video streams, and live optical feeds.
 
 Built with a scalable AI infrastructure and enterprise-grade dashboarding system, AetherGuard delivers high-fidelity forensic analysis with real-time investigative insights.
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 Team & Contributors
 
 | Name | Roll Number |
 |---|---|
@@ -154,12 +154,14 @@ The **Engine Status** indicator should display:
 
 ### 🧠 Multimodal Inference Core
 Unified AI analysis pipeline supporting:
+
 - 📷 Images
 - 🎥 Video Streams
 - 📡 Live Webcam Feeds
 
 ### 🔍 Ensemble Forensic Jury
 Advanced biometric validation using:
+
 - 👁️ MTCNN facial alignment
 - 🤖 Vision Transformers
 - 🧠 EfficientNet-B4 ensemble classifiers
@@ -202,7 +204,7 @@ The V5 interface includes:
 ## ⚖️ License
 
 **Proprietary / Research Use Only**  
-Optimized exclusively for the **AetherGuard Forensic Suite**.
+Optimized exclusively for the AetherGuard Forensic Suite.
 
 ---
 
