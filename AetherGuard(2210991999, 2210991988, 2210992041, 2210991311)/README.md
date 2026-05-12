@@ -15,12 +15,12 @@ Built with a scalable AI infrastructure and enterprise-grade dashboarding system
 
 ## 👨‍💻 Author
 
-| Name |
-|---|
-| Piyush Bhardwaj | |2210992041 |
-| Nishant | |2210991988 |
-|Nitin Choudhary | |2210991999 |
-|Anshul Mishra| |2210991311 |
+| Name | Roll Number |
+|---|---|
+| Piyush Bhardwaj | 2210992041 |
+| Nishant | 2210991988 |
+| Nitin Choudhary | 2210991999 |
+| Anshul Mishra | 2210991311 |
 
 ---
 
